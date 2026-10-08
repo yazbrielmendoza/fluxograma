@@ -4,158 +4,488 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IA para Preservação Ambiental</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --bg-1: #020d1a;
+            --bg-2: #071c2d;
+            --panel: #0d2b42;
+            --panel-2: #123f5d;
+            --line: #4aa3ff;
+            --line-2: #83d0ff;
+            --text: #eaf6ff;
+            --muted: #b8d8f0;
+            --accent: #6fc7ff;
+            --accent-2: #a8efff;
+            --shadow: rgba(10, 32, 52, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .slide-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            padding: 40px;
+        }
+
+        .slide.active {
+            opacity: 1;
+            z-index: 10;
+        }
+
+        /* Slide de Capa */
+        .slide-cover {
+            background: radial-gradient(circle at center, rgba(15, 60, 100, 0.8), rgba(5, 20, 40, 0.95));
+            text-align: center;
+        }
+
+        .slide-cover h1 {
+            font-size: 4rem;
+            color: var(--accent-2);
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(128, 200, 255, 0.4);
+        }
+
+        .slide-cover p {
+            font-size: 1.8rem;
+            color: var(--muted);
+            margin-bottom: 50px;
+            max-width: 800px;
+        }
+
+        .slide-cover .emoji {
+            font-size: 5rem;
+            margin-bottom: 30px;
+        }
+
+        /* Slides de Conteúdo */
+        .slide-content {
+            background: linear-gradient(135deg, rgba(13, 43, 66, 0.9), rgba(18, 63, 93, 0.9));
+            border: 2px solid var(--line);
+            border-radius: 30px;
+            padding: 60px 50px;
+            max-width: 900px;
+            width: 90%;
+            box-shadow: 0 0 50px rgba(111, 199, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .slide-content .emoji {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .slide-content h2 {
+            font-size: 3rem;
+            color: var(--accent-2);
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(128, 200, 255, 0.3);
+        }
+
+        .slide-content p {
+            font-size: 1.3rem;
+            color: var(--text);
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .slide-content ul {
+            list-style: none;
+            font-size: 1.2rem;
+            color: var(--text);
+            line-height: 2;
+        }
+
+        .slide-content li {
+            margin-bottom: 15px;
+            padding-left: 40px;
+            position: relative;
+        }
+
+        .slide-content li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--accent-2);
+            font-size: 1.8rem;
+        }
+
+        .slide-content li strong {
+            color: var(--accent-2);
+        }
+
+        /* Controles de Navegação */
+        .nav-container {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #143d61, #0c2438);
+            border: 2px solid var(--line);
+            color: var(--text);
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(111, 199, 255, 0.5);
+            border-color: var(--accent-2);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Indicador de Slide */
+        .slide-indicator {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            font-size: 1.2rem;
+            color: var(--muted);
+            background: rgba(13, 43, 66, 0.7);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid var(--line);
+        }
+
+        /* Menu de Palavras-chave */
+        .keywords-menu {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: rgba(13, 43, 66, 0.7);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 10px 20px;
+            max-height: 60px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            z-index: 50;
+        }
+
+        .keywords-menu:hover {
+            max-height: 400px;
+        }
+
+        .keywords-menu h4 {
+            color: var(--accent-2);
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .keywords-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .keyword-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .keyword-btn:hover {
+            background: var(--accent);
+            color: var(--bg-1);
+        }
+
+        .keyword-btn.active {
+            background: var(--accent-2);
+            color: var(--bg-1);
+            border-color: var(--accent-2);
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .slide-cover h1 {
+                font-size: 2.5rem;
+            }
+
+            .slide-cover p {
+                font-size: 1.3rem;
+            }
+
+            .slide-content {
+                padding: 40px 30px;
+                max-width: 95%;
+            }
+
+            .slide-content h2 {
+                font-size: 2rem;
+            }
+
+            .slide-content p {
+                font-size: 1.1rem;
+            }
+
+            .keywords-menu {
+                max-height: 50px;
+                font-size: 0.9rem;
+            }
+
+            .slide-indicator {
+                font-size: 1rem;
+            }
+
+            .nav-container {
+                gap: 10px;
+            }
+
+            .nav-btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🌍 IA e Preservação Ambiental</h1>
-            <p>Descubra como a Inteligência Artificial está revolucionando a proteção do nosso planeta</p>
-        </header>
+        <!-- Menu de Palavras-chave -->
+        <div class="keywords-menu">
+            <h4>📚 Ir para...</h4>
+            <div class="keywords-list">
+                <button class="keyword-btn" onclick="goToSlide(0)">Capa</button>
+                <button class="keyword-btn" onclick="goToSlide(1)">📡 Monitoramento</button>
+                <button class="keyword-btn" onclick="goToSlide(2)">⚡ Energia Renovável</button>
+                <button class="keyword-btn" onclick="goToSlide(3)">🌲 Floresta</button>
+                <button class="keyword-btn" onclick="goToSlide(4)">🌊 Oceano</button>
+                <button class="keyword-btn" onclick="goToSlide(5)">🌾 Agricultura</button>
+                <button class="keyword-btn" onclick="goToSlide(6)">💨 Emissões</button>
+                <button class="keyword-btn" onclick="goToSlide(7)">♻️ Reciclagem</button>
+                <button class="keyword-btn" onclick="goToSlide(8)">🦁 Biodiversidade</button>
+            </div>
+        </div>
 
-        <main>
-            <section class="flowchart-section">
-                <h2>Como a IA Preserva o Meio Ambiente</h2>
-                <div class="flowchart">
-                    <div class="flowchart-center">
-                        <div class="node main-node">
-                            <span>IA & Meio Ambiente</span>
-                        </div>
-                    </div>
+        <!-- Indicador de Slide -->
+        <div class="slide-indicator">
+            <span id="current-slide">1</span> / <span id="total-slides">9</span>
+        </div>
 
-                    <!-- Nós principais -->
-                    <div class="node-container">
-                        <div class="node keyword-node" data-keyword="monitoramento">
-                            <span>📡 Monitoramento</span>
-                        </div>
-                        <div class="node keyword-node" data-keyword="energia">
-                            <span>⚡ Energia Renovável</span>
-                        </div>
-                        <div class="node keyword-node" data-keyword="floresta">
-                            <span>🌲 Proteção Florestal</span>
-                        </div>
-                        <div class="node keyword-node" data-keyword="oceano">
-                            <span>🌊 Conservação Oceânica</span>
-                        </div>
-                        <div class="node keyword-node" data-keyword="agricultura">
-                            <span>🌾 Agricultura Sustentável</span>
-                        </div>
-                        <div class="node keyword-node" data-keyword="emissoes">
-                            <span>💨 Redução de Emissões</span>
-                        </div>
-                        <div class="node keyword-node" data-keyword="reciclagem">
-                            <span>♻️ Reciclagem Inteligente</span>
-                        </div>
-                        <div class="node keyword-node" data-keyword="biodiversidade">
-                            <span>🦁 Proteção da Biodiversidade</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <!-- Container de Slides -->
+        <div class="slide-container">
+            <!-- Slide 0: Capa -->
+            <div class="slide slide-cover active">
+                <div class="emoji">🌍</div>
+                <h1>IA e Preservação Ambiental</h1>
+                <p>Como a inteligência artificial ajuda o ser humano a cuidar do nosso planeta</p>
+            </div>
 
-            <!-- Conteúdo das abas -->
-            <section class="content-section" id="content-section">
-                <div class="tab-content active" id="monitoramento">
-                    <h3>📡 Monitoramento Ambiental com IA</h3>
-                    <p>A IA utiliza sensores e satélites para monitorar em tempo real:</p>
-                    <ul>
-                        <li><strong>Desmatamento:</strong> Detecta mudanças em florestas através de imagens de satélite</li>
-                        <li><strong>Qualidade do ar:</strong> Prevê e analisa poluição com precisão</li>
-                        <li><strong>Mudanças climáticas:</strong> Modela padrões climáticos futuros</li>
-                        <li><strong>Biodiversidade:</strong> Rastreia populações de animais em perigo</li>
-                    </ul>
-                </div>
+            <!-- Slide 1: Monitoramento -->
+            <div class="slide slide-content">
+                <div class="emoji">📡</div>
+                <h2>Monitoramento Ambiental</h2>
+                <p>A IA observa nosso planeta em tempo real através de satélites e sensores, detectando mudanças ambientais antes que se tornem problemas graves.</p>
+                <ul>
+                    <li><strong>Desmatamento:</strong> Identifica áreas derrubadas com imagens de satélite</li>
+                    <li><strong>Qualidade do ar:</strong> Analisa gases e poluentes em tempo real</li>
+                    <li><strong>Mudanças climáticas:</strong> Prevê eventos extremos e auxilia no planejamento</li>
+                    <li><strong>Fauna e flora:</strong> Monitora espécies ameaçadas e seus habitats</li>
+                </ul>
+            </div>
 
-                <div class="tab-content" id="energia">
-                    <h3>⚡ Otimização de Energia Renovável</h3>
-                    <p>IA maximiza a eficiência de fontes limpas:</p>
-                    <ul>
-                        <li><strong>Painéis solares:</strong> Otimiza ângulos e previsão de produção</li>
-                        <li><strong>Turbinas eólicas:</strong> Prevê vento e maximiza geração</li>
-                        <li><strong>Redes inteligentes:</strong> Distribui energia de forma eficiente</li>
-                        <li><strong>Armazenamento:</strong> Gerencia baterias com IA preditiva</li>
-                    </ul>
-                </div>
+            <!-- Slide 2: Energia Renovável -->
+            <div class="slide slide-content">
+                <div class="emoji">⚡</div>
+                <h2>Energia Renovável</h2>
+                <p>A inteligência artificial otimiza a geração e o uso de energia limpa, reduzindo drasticamente o consumo de fontes poluentes.</p>
+                <ul>
+                    <li><strong>Painéis solares:</strong> Ajustam produção conforme o clima</li>
+                    <li><strong>Turbinas eólicas:</strong> Prevê vento e maximiza geração</li>
+                    <li><strong>Redes inteligentes:</strong> Gerenciam consumo com mais eficiência</li>
+                    <li><strong>Armazenamento:</strong> Controla melhor baterias e energia</li>
+                </ul>
+            </div>
 
-                <div class="tab-content" id="floresta">
-                    <h3>🌲 Proteção e Restauração Florestal</h3>
-                    <p>IA protege nossas florestas:</p>
-                    <ul>
-                        <li><strong>Detecção de incêndios:</strong> Identifica focos antes de se alastrar</li>
-                        <li><strong>Combate ao desmatamento:</strong> Monitora áreas protegidas 24/7</li>
-                        <li><strong>Restauração:</strong> Planeja reflorestamento com IA</li>
-                        <li><strong>Saúde das árvores:</strong> Diagnostica doenças em árvores</li>
-                    </ul>
-                </div>
+            <!-- Slide 3: Proteção Florestal -->
+            <div class="slide slide-content">
+                <div class="emoji">🌲</div>
+                <h2>Proteção Florestal</h2>
+                <p>A IA previne incêndios, protege áreas naturais e auxilia no reflorestamento, reduzindo o impacto da destruição de florestas.</p>
+                <ul>
+                    <li><strong>Detecção de incêndio:</strong> Percebe focos antes que se alastrem</li>
+                    <li><strong>Monitoramento:</strong> Rastreia desmatamento e atividades ilegais</li>
+                    <li><strong>Restauração:</strong> Identifica espécies ideais para replantio</li>
+                    <li><strong>Saúde das árvores:</strong> Diagnostica doenças precocemente</li>
+                </ul>
+            </div>
 
-                <div class="tab-content" id="oceano">
-                    <h3>🌊 Conservação dos Oceanos</h3>
-                    <p>IA protege ecossistemas marinhos:</p>
-                    <ul>
-                        <li><strong>Poluição plástica:</strong> Rastreia e mapeia lixo nos oceanos</li>
-                        <li><strong>Pesca sustentável:</strong> Garante captura responsável</li>
-                        <li><strong>Recifes de coral:</strong> Monitora saúde em tempo real</li>
-                        <li><strong>Migrações marinhas:</strong> Protege rotas de animais marinhos</li>
-                    </ul>
-                </div>
+            <!-- Slide 4: Conservação Oceânica -->
+            <div class="slide slide-content">
+                <div class="emoji">🌊</div>
+                <h2>Conservação Oceânica</h2>
+                <p>Os oceanos são essenciais para o planeta. A IA monitora a vida marinha e reduz a poluição nos mares.</p>
+                <ul>
+                    <li><strong>Poluição plástica:</strong> Localiza áreas com resíduos marinhos</li>
+                    <li><strong>Recifes de coral:</strong> Acompanha saúde de organismos marinhos</li>
+                    <li><strong>Pesca responsável:</strong> Evita pesca excessiva e irresponsável</li>
+                    <li><strong>Vida selvagem:</strong> Protege rotas de animais marinhos</li>
+                </ul>
+            </div>
 
-                <div class="tab-content" id="agricultura">
-                    <h3>🌾 Agricultura Sustentável e Precisão</h3>
-                    <p>IA revoluciona práticas agrícolas:</p>
-                    <ul>
-                        <li><strong>Plantio inteligente:</strong> Otimiza uso de água e fertilizantes</li>
-                        <li><strong>Previsão de pragas:</strong> Identifica problemas antecipadamente</li>
-                        <li><strong>Drones autônomos:</strong> Pulverização precisão e reduzida</li>
-                        <li><strong>Rendimento:</strong> Maximiza produção com menos recursos</li>
-                    </ul>
-                </div>
+            <!-- Slide 5: Agricultura Sustentável -->
+            <div class="slide slide-content">
+                <div class="emoji">🌾</div>
+                <h2>Agricultura Sustentável</h2>
+                <p>A IA ajuda agricultores a produzir mais com menos água, fertilizante e impacto ambiental.</p>
+                <ul>
+                    <li><strong>Sensoramento:</strong> Analisa solo e clima para melhores decisões</li>
+                    <li><strong>Prevenção de pragas:</strong> Detecta problemas antes da colheita</li>
+                    <li><strong>Uso inteligente de água:</strong> Reduz desperdício no campo</li>
+                    <li><strong>Eficiência:</strong> Melhora produção sem ampliar dano ambiental</li>
+                </ul>
+            </div>
 
-                <div class="tab-content" id="emissoes">
-                    <h3>💨 Redução de Emissões de Carbono</h3>
-                    <p>IA combate as mudanças climáticas:</p>
-                    <ul>
-                        <li><strong>Otimização de rotas:</strong> Reduz combustível em transportes</li>
-                        <li><strong>Indústrias limpas:</strong> Minimiza emissões em fábricas</li>
-                        <li><strong>Captura de carbono:</strong> Monitora tecnologias de CC</li>
-                        <li><strong>Prognóstico:</strong> Prevê impactos climáticos futuros</li>
-                    </ul>
-                </div>
+            <!-- Slide 6: Redução de Emissões -->
+            <div class="slide slide-content">
+                <div class="emoji">💨</div>
+                <h2>Redução de Emissões</h2>
+                <p>A IA ajuda empresas e cidades a reduzir gases de efeito estufa e melhorar o uso de transporte e energia.</p>
+                <ul>
+                    <li><strong>Rotas inteligentes:</strong> Economiza combustível e reduz emissões</li>
+                    <li><strong>Indústrias limpas:</strong> Identifica desperdícios e consumo excessivo</li>
+                    <li><strong>Mobilidade urbana:</strong> Reduz congestionamentos e poluição</li>
+                    <li><strong>Previsão climática:</strong> Prepara comunidades para mudanças</li>
+                </ul>
+            </div>
 
-                <div class="tab-content" id="reciclagem">
-                    <h3>♻️ Reciclagem Inteligente</h3>
-                    <p>IA melhora processos de reciclagem:</p>
-                    <ul>
-                        <li><strong>Separação automática:</strong> Classifica resíduos com precisão</li>
-                        <li><strong>Otimização de resíduo:</strong> Reduz lixo em aterros</li>
-                        <li><strong>Rastreamento:</strong> Segue ciclo completo do material</li>
-                        <li><strong>Economia circular:</strong> Reimplementa materiais eficientemente</li>
-                    </ul>
-                </div>
+            <!-- Slide 7: Reciclagem Inteligente -->
+            <div class="slide slide-content">
+                <div class="emoji">♻️</div>
+                <h2>Reciclagem Inteligente</h2>
+                <p>A IA classifica resíduos, reduz desperdícios e apoia uma economia circular mais eficiente.</p>
+                <ul>
+                    <li><strong>Separação automática:</strong> Distingue materiais com mais precisão</li>
+                    <li><strong>Identificação:</strong> Determina melhor o que pode ser reutilizado</li>
+                    <li><strong>Redução de lixo:</strong> Diminui descarte inadequado em aterros</li>
+                    <li><strong>Gestão eficiente:</strong> Melhora coleta e processamento</li>
+                </ul>
+            </div>
 
-                <div class="tab-content" id="biodiversidade">
-                    <h3>🦁 Proteção da Biodiversidade</h3>
-                    <p>IA preserva a vida selvagem:</p>
-                    <ul>
-                        <li><strong>Identificação de espécies:</strong> Reconhece animais automaticamente</li>
-                        <li><strong>Combate à caça ilegal:</strong> Detecta atividades criminosas</li>
-                        <li><strong>Habitats seguros:</strong> Cria corredores ecológicos</li>
-                        <li><strong>Reprodução assistida:</strong> Auxilia conservação de espécies</li>
-                    </ul>
-                </div>
-            </section>
+            <!-- Slide 8: Biodiversidade -->
+            <div class="slide slide-content">
+                <div class="emoji">🦁</div>
+                <h2>Proteção da Biodiversidade</h2>
+                <p>A tecnologia protege espécies em risco e mapeia ecossistemas que precisam de atenção.</p>
+                <ul>
+                    <li><strong>Reconhecimento de espécies:</strong> Identifica animais automaticamente</li>
+                    <li><strong>Combate à caça ilegal:</strong> Analisa padrões de risco</li>
+                    <li><strong>Conservação:</strong> Cria áreas protegidas e rotas ecológicas</li>
+                    <li><strong>Monitoramento:</strong> Acompanha mudanças no habitat em tempo real</li>
+                </ul>
+            </div>
+        </div>
 
-            <section class="cta-section">
-                <h2>O Futuro é Sustentável</h2>
-                <p>A IA não é apenas uma ferramenta tecnológica, é um aliado essencial na preservação do nosso planeta para as gerações futuras.</p>
-                <button class="cta-button">Saiba Mais Sobre Iniciativas Globais</button>
-            </section>
-        </main>
-
-        <footer>
-            <p>&copy; 2024 IA para Preservação Ambiental | Desenvolvido com 💚 para o planeta</p>
-        </footer>
+        <!-- Controles de Navegação -->
+        <div class="nav-container">
+            <button class="nav-btn" id="prev-btn" onclick="previousSlide()">← Anterior</button>
+            <button class="nav-btn" id="next-btn" onclick="nextSlide()">Próximo →</button>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 9;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const keywords = document.querySelectorAll('.keyword-btn');
+
+            if (n >= totalSlides) currentSlide = totalSlides - 1;
+            if (n < 0) currentSlide = 0;
+
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide].classList.add('active');
+
+            keywords.forEach(btn => btn.classList.remove('active'));
+            keywords[currentSlide].classList.add('active');
+
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+
+            document.getElementById('prev-btn').disabled = currentSlide === 0;
+            document.getElementById('next-btn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+
+        function previousSlide() {
+            currentSlide--;
+            showSlide(currentSlide);
+        }
+
+        function goToSlide(n) {
+            currentSlide = n;
+            showSlide(currentSlide);
+        }
+
+        // Teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') previousSlide();
+        });
+
+        // Inicializar
+        showSlide(currentSlide);
+    </script>
 </body>
 </html>
